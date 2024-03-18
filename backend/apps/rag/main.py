@@ -86,20 +86,20 @@ app.state.RAG_TEMPLATE = RAG_TEMPLATE
 app.state.RAG_EMBEDDING_MODEL = RAG_EMBEDDING_MODEL
 app.state.TOP_K = 4
 
-try:
-    app.state.sentence_transformer_ef = (
-        embedding_functions.SentenceTransformerEmbeddingFunction(
-            model_name=app.state.RAG_EMBEDDING_MODEL,
-            device=RAG_EMBEDDING_MODEL_DEVICE_TYPE,
-        )
+# try:
+#     app.state.sentence_transformer_ef = (
+#         embedding_functions.SentenceTransformerEmbeddingFunction(
+#             model_name=app.state.RAG_EMBEDDING_MODEL,
+#             device=RAG_EMBEDDING_MODEL_DEVICE_TYPE,
+#         )
+#     )
+# except ValueError as e:
+if RAG_EMBEDDING_MODEL == "SFR-embeddings-mistral":
+    app.state.sentence_transformer_ef = SfrEmbeddingFunction()
+else:
+    raise ValueError(
+        f"RAG_EMBEDDING_MODEL {RAG_EMBEDDING_MODEL} not found in extensions"
     )
-except ValueError as e:
-    if RAG_EMBEDDING_MODEL == "SFR-embeddings-mistal":
-        app.state.sentence_transformer_ef = SfrEmbeddingFunction()
-    else:
-        raise ValueError(
-            f"RAG_EMBEDDING_MODEL {RAG_EMBEDDING_MODEL} not found in extensions"
-        )
 
 
 origins = ["*"]
