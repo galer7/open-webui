@@ -15,7 +15,6 @@ from typing import List
 
 from sentence_transformers import SentenceTransformer
 from chromadb.utils import embedding_functions
-from model_extensions import SfrEmbeddingFunction
 
 from langchain_community.document_loaders import (
     WebBaseLoader,
@@ -38,6 +37,8 @@ import mimetypes
 import uuid
 import json
 
+
+from apps.rag.model_extensions import SfrEmbeddingFunction
 
 from apps.web.models.documents import (
     Documents,
