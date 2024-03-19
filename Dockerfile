@@ -5,8 +5,8 @@ FROM node:alpine as build
 WORKDIR /app
 
 # wget embedding model weight from alpine (does not exist from slim-buster)
-RUN wget "https://chroma-onnx-models.s3.amazonaws.com/all-MiniLM-L6-v2/onnx.tar.gz" -O - | \
-    tar -xzf - -C /app
+# RUN wget "https://chroma-onnx-models.s3.amazonaws.com/all-MiniLM-L6-v2/onnx.tar.gz" -O - | \
+#   tar -xzf - -C /app
 
 COPY package.json package-lock.json ./
 RUN npm ci
@@ -40,7 +40,7 @@ ENV WHISPER_MODEL_DIR="/app/backend/data/cache/whisper/models"
 # Leaderboard: https://huggingface.co/spaces/mteb/leaderboard 
 # for better persormance and multilangauge support use "intfloat/multilingual-e5-large" (~2.5GB) or "intfloat/multilingual-e5-base" (~1.5GB)
 # IMPORTANT: If you change the default model (all-MiniLM-L6-v2) and vice versa, you aren't able to use RAG Chat with your previous documents loaded in the WebUI! You need to re-embed them.
-ENV RAG_EMBEDDING_MODEL="all-MiniLM-L6-v2"
+ENV RAG_EMBEDDING_MODEL="SFR-embeddings-mistral"
 # device type for whisper tts and embbeding models - "cpu" (default), "cuda" (nvidia gpu and CUDA required) or "mps" (apple silicon) - choosing this right can lead to better performance
 ENV RAG_EMBEDDING_MODEL_DEVICE_TYPE="cpu"
 ENV RAG_EMBEDDING_MODEL_DIR="/app/backend/data/cache/embedding/models"
@@ -61,17 +61,17 @@ RUN pip3 install -r requirements.txt --no-cache-dir
 # Install pandoc and netcat
 # RUN python -c "import pypandoc; pypandoc.download_pandoc()"
 RUN apt-get update \
-    && apt-get install -y pandoc netcat-openbsd \
-    && rm -rf /var/lib/apt/lists/*
+  && apt-get install -y pandoc netcat-openbsd \
+  && rm -rf /var/lib/apt/lists/*
 
 # preload embedding model
-RUN python -c "import os; from chromadb.utils import embedding_functions; sentence_transformer_ef = embedding_functions.SentenceTransformerEmbeddingFunction(model_name=os.environ['RAG_EMBEDDING_MODEL'], device=os.environ['RAG_EMBEDDING_MODEL_DEVICE_TYPE'])"
+# RUN python -c "import os; from chromadb.utils import embedding_functions; sentence_transformer_ef = embedding_functions.SentenceTransformerEmbeddingFunction(model_name=os.environ['RAG_EMBEDDING_MODEL'], device=os.environ['RAG_EMBEDDING_MODEL_DEVICE_TYPE'])"
 # preload tts model
 RUN python -c "import os; from faster_whisper import WhisperModel; WhisperModel(os.environ['WHISPER_MODEL'], device='auto', compute_type='int8', download_root=os.environ['WHISPER_MODEL_DIR'])"
 
 # copy embedding weight from build
-RUN mkdir -p /root/.cache/chroma/onnx_models/all-MiniLM-L6-v2
-COPY --from=build /app/onnx /root/.cache/chroma/onnx_models/all-MiniLM-L6-v2/onnx
+# RUN mkdir -p /root/.cache/chroma/onnx_models/all-MiniLM-L6-v2
+# COPY --from=build /app/onnx /root/.cache/chroma/onnx_models/all-MiniLM-L6-v2/onnx
 
 # copy built frontend files
 COPY --from=build /app/build /app/build
